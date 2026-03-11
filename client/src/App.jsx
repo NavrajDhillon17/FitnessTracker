@@ -11,7 +11,7 @@ import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import Workouts from './pages/Workouts';
 import Goals from './pages/Goals';
-import Profile from './pages/profile';
+import Profile from './pages/Profile';
 
 const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth();
