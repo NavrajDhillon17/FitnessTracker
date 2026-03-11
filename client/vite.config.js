@@ -7,7 +7,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'https://fitnesstracker-gdfu.onrender.com/api',
+        target: 'https://fitnesstracker-gdfu.onrender.com',
         changeOrigin: true
       }
     }
