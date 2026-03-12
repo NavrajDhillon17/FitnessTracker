@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../api';
 
 const CATEGORIES = ['cardio', 'strength', 'flexibility', 'sports', 'other'];
 const MOODS = ['great', 'good', 'okay', 'tired', 'exhausted'];
@@ -21,7 +21,7 @@ export default function Workouts() {
 
   const fetchWorkouts = async () => {
     try {
-      const res = await axios.get('/api/workouts?limit=50');
+      const res = await api.get('/workouts?limit=50');
       setWorkouts(res.data.workouts || []);
     } catch { } finally { setLoading(false); }
   };
@@ -57,9 +57,9 @@ export default function Workouts() {
     setError('');
     try {
       if (editId) {
-        await axios.put(`/api/workouts/${editId}`, form);
+        await api.put(`/workouts/${editId}`, form);
       } else {
-        await axios.post('/api/workouts', form);
+        await api.post('/workouts', form);
       }
       await fetchWorkouts();
       closeModal();
@@ -71,7 +71,7 @@ export default function Workouts() {
   const deleteWorkout = async (id) => {
     if (!window.confirm('Delete this workout?')) return;
     try {
-      await axios.delete(`/api/workouts/${id}`);
+      await api.delete(`/workouts/${id}`);
       setWorkouts(workouts.filter(w => w._id !== id));
     } catch { }
   };

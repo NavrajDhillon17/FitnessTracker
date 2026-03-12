@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../api';
 
 const AuthContext = createContext();
 
@@ -12,7 +12,7 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     if (token) {
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
       fetchUser();
     } else {
       setLoading(false);
@@ -21,9 +21,14 @@ export const AuthProvider = ({ children }) => {
 
   const fetchUser = async () => {
     try {
-      const res = await axios.get('/api/auth/me');
+      const res = await api.get('/auth/me');
       setUser(res.data);
-    } catch {
+    } catch (error) {
+      if (error.response && error.response.status === 401) {
+        console.log('No valid token, user not logged in');
+      } else {
+        console.error(error);
+      }
       logout();
     } finally {
       setLoading(false);
@@ -31,28 +36,38 @@ export const AuthProvider = ({ children }) => {
   };
 
   const login = async (email, password) => {
-    const res = await axios.post('/api/auth/login', { email, password });
-    const { token: newToken, user: newUser } = res.data;
-    localStorage.setItem('ft_token', newToken);
-    axios.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
-    setToken(newToken);
-    setUser(newUser);
-    return newUser;
+    try {
+      const res = await api.post('/auth/login', { email, password });
+      const { token: newToken, user: newUser } = res.data;
+      localStorage.setItem('ft_token', newToken);
+      api.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
+      setToken(newToken);
+      setUser(newUser);
+      return newUser;
+    } catch (error) {
+      console.error('Login error:', error.response?.data || error.message);
+      throw error;
+    }
   };
 
   const register = async (data) => {
-    const res = await axios.post('/api/auth/register', data);
-    const { token: newToken, user: newUser } = res.data;
-    localStorage.setItem('ft_token', newToken);
-    axios.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
-    setToken(newToken);
-    setUser(newUser);
-    return newUser;
+    try {
+      const res = await api.post('/auth/register', data);
+      const { token: newToken, user: newUser } = res.data;
+      localStorage.setItem('ft_token', newToken);
+      api.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
+      setToken(newToken);
+      setUser(newUser);
+      return newUser;
+    } catch (error) {
+      console.error('Register error:', error.response?.data || error.message);
+      throw error;
+    }
   };
 
   const logout = () => {
     localStorage.removeItem('ft_token');
-    delete axios.defaults.headers.common['Authorization'];
+    delete api.defaults.headers.common['Authorization'];
     setToken(null);
     setUser(null);
   };

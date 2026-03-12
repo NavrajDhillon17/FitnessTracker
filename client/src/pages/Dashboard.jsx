@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import api from '../api';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line
 } from 'recharts';
@@ -35,10 +35,10 @@ export default function Dashboard() {
   const fetchDashboardData = async () => {
     try {
       const [weekRes, monthRes, workoutRes, goalRes] = await Promise.all([
-        axios.get('/api/progress/weekly'),
-        axios.get('/api/progress/monthly'),
-        axios.get('/api/workouts?limit=5'),
-        axios.get('/api/goals'),
+        api.get('/progress/weekly'),
+        api.get('/progress/monthly'),
+        api.get('/workouts?limit=5'),
+        api.get('/goals'),
       ]);
       setWeeklyData(weekRes.data.map(d => ({
         ...d,

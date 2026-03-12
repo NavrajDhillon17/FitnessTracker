@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../api';
 
 const GOAL_TYPES = ['weight', 'workouts_per_week', 'calories', 'distance', 'strength', 'custom'];
-const TYPE_ICONS = { weight: '⚖️', workouts_per_week: '📅', calories: '🔥', distance: '🏃', strength: '💪', custom: '🎯' };
+const TYPE_ICONS = { weight: '', workouts_per_week: '', calories: '', distance: '', strength: '', custom: '' };
 
 const emptyGoal = () => ({ title: '', type: 'custom', targetValue: '', currentValue: '', unit: '', deadline: '', notes: '' });
 
@@ -18,7 +18,7 @@ export default function Goals() {
 
   const fetchGoals = async () => {
     try {
-      const res = await axios.get('/api/goals');
+      const res = await api.get('/goals');
       setGoals(res.data || []);
     } catch { } finally { setLoading(false); }
   };
@@ -41,8 +41,8 @@ export default function Goals() {
     e.preventDefault();
     setSaving(true);
     try {
-      if (editId) { await axios.put(`/api/goals/${editId}`, form); }
-      else { await axios.post('/api/goals', form); }
+      if (editId) { await api.put(`/goals/${editId}`, form); }
+      else { await api.post('/goals', form); }
       await fetchGoals();
       closeModal();
     } catch { } finally { setSaving(false); }
@@ -51,14 +51,14 @@ export default function Goals() {
   const deleteGoal = async (id) => {
     if (!window.confirm('Delete this goal?')) return;
     try {
-      await axios.delete(`/api/goals/${id}`);
+      await api.delete(`/goals/${id}`);
       setGoals(goals.filter(g => g._id !== id));
     } catch { }
   };
 
   const updateProgress = async (goal, newValue) => {
     try {
-      const updated = await axios.put(`/api/goals/${goal._id}`, {
+      const updated = await api.put(`/goals/${goal._id}`, {
         ...goal,
         currentValue: newValue,
         status: newValue >= goal.targetValue ? 'completed' : 'active'
